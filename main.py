@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
 
 api_url = "https://api.npoint.io/e75e0e49fccb076f6e84"
@@ -26,9 +26,16 @@ def get_about():
                            posts=data_for_posts, bg="../static/img/about-bg.jpg")
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["GET", "POST"])
 def get_contact():
-    title = "Contact Me"
+    if request.method == "GET":
+        title = "Contact Me"
+    elif request.method == "POST":
+        title = "Successfully send your message"
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        message = request.form["message"]
     subtitle = "Have questions? I have answers."
     author_and_date = ""
     return render_template("contact.html", title=title, subtitle=subtitle, author_and_date=author_and_date,

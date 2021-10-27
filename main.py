@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request
 import requests
+import smtplib
+import config
 
-api_url = "https://api.npoint.io/e75e0e49fccb076f6e84"
 
-data_for_posts = requests.get(url=api_url).json()
+data_for_posts = requests.get(url=config.API_URL).json()
 
 app = Flask(__name__)
 
@@ -36,6 +37,19 @@ def get_contact():
         email = request.form["email"]
         phone = request.form["phone"]
         message = request.form["message"]
+        message_for_send = f"""\
+        Subject: Hi there\n
+        
+        My name is {name}\n
+        my email is {email}\n
+        my phone number {phone}\n
+        my message: {message}."""
+
+        with smtplib.SMTP(config.SMTP_SERVER, config.PORT_FOR_SMTP) as server:
+            server.starttls()
+            server.login(user=config.SENDER_EMAIL, password=config.PASSWORD)
+            server.sendmail(from_addr=config.SENDER_EMAIL, to_addrs=config.SENDER_EMAIL, msg=message_for_send)
+
     subtitle = "Have questions? I have answers."
     author_and_date = ""
     return render_template("contact.html", title=title, subtitle=subtitle, author_and_date=author_and_date,
